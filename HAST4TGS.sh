@@ -7,7 +7,7 @@ function usage(){
     echo "Usage    :"
     echo "    ./HAST4TGS.sh [OPTION]" 
     echo ""
-    echo "Trio-phase filial stLFR reads based on paternal NGS reads and maternal NGS reads."
+    echo "A fast and memory effiective version of trio-binning ."
     echo ""
     echo "Options  :"
     echo "        --paternal    paternal NGS reads file in fastq format."
