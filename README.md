@@ -4,7 +4,7 @@ Partition stLFR reads based on trio-binning using prenatally unique markers.
 ## INSTALL
 
 ```
-git clone https://github.com/BGI-Qingdao/HAST.git
+git clone https://github.com/BGI-Qingdao/HAST4TGS.git
 cd HAST
 make
 ```
@@ -13,7 +13,8 @@ make
 
 ```
 Usage    :
-    ./HAST.sh [OPTION]
+Usage    :
+    ./HAST4TGS.sh [OPTION]
 
 Trio-phase filial stLFR reads based on paternal NGS reads and maternal NGS reads.
 
@@ -41,20 +42,18 @@ Options  :
                       [ optional, default 9. ]
         --p-upper     paternal kmer count tablle will ignore mer with count > p-upper.
                       [ optional, default 33. ]
-        --auto_bounds calcuate lower and upper bounds by kmercount table.
-                      [ optional, default not trigger; no parameter. ]
-                      ( note : if auto_bounds is open, it will overwrite --*-lower and --*-upper  ]
         --help        print this usage message.
 
 Examples :
-    ./HAST.sh --paternal father.fastq --maternal mater.fastq --filial son.fastq
+    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.fastq
 
-    ./HAST.sh --paternal father.fastq --maternal mater.fastq --filial son.r1.fastq --filial son.r2.fastq
+    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.r1.fastq --filial son.r2.fastq
 
-    ./HAST.sh --paternal father.fastq --maternal mater.fastq \
+    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq \
                      --filial son.r1.fastq --memory 20 --thread 20 \
                      --mer 21 --p-lower=9 --p-upper=33 --m-lower=9 --p-upper=33 \
                      --jellyfish /home/software/jellyfish/jellyfish-linux
+
 ```
 
 Enjoy !
