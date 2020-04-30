@@ -14,7 +14,7 @@ function usage(){
     echo "                      ( note : gzip format IS NOT supported. ) "
     echo "        --maternal    maternal NGS reads file in fastq format."
     echo "                      ( note : gzip format IS NOT supported. ) "
-    echo "        --filial      filial stLFR reads file in fastq format."
+    echo "        --filial      filial TGS reads file in fasta format."
     echo "                      file in gzip format is accepted, but filename must end by \".gz\"."
     echo "        --thread      threads num."
     echo "                      [ optional, default 8 thread. ]"
@@ -33,16 +33,19 @@ function usage(){
     echo "                      [ optional, default 9. ]"
     echo "        --p-upper     paternal kmer count tablle will ignore mer with count > p-upper."
     echo "                      [ optional, default 33. ]"
+    echo "        --auto_bounds calcuate lower and upper bounds by kmercount table."
+    echo "                      [ optional, default not trigger; no parameter. ]"
+    echo "                      ( note : if auto_bounds is open, it will overwrite --*-lower and --*-upper  ]"
     echo "        --help        print this usage message."
     echo "        "
     echo "Examples :"
-    echo "    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.fastq"
+    echo "    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.fasta"
     echo ""
-    echo "    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.r1.fastq --filial son.r2.fastq"
+    echo "    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.L01.fasta --filial son.L02.fasta"
     echo ""
     echo "    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq \\"
-    echo "                     --filial son.r1.fastq --memory 20 --thread 20 \\"
-    echo "                     --mer 21 --p-lower=9 --p-upper=33 --m-lower=9 --p-upper=33 \\"
+    echo "                     --filial son.fasta --memory 20 --thread 20 \\"
+    echo "                     --mer 21 --p-lower=9 --p-upper=32 --m-lower=8 --p-upper=33 \\"
     echo "                     --jellyfish /home/software/jellyfish/jellyfish-linux"
 }
 
@@ -60,6 +63,7 @@ MUPPER=33
 PATERNAL=""
 MATERNAL=""
 FILIAL=""
+AUTO_BOUNDS=0
 SPATH=`dirname $0`
 ###############################################################################
 # parse arguments
@@ -112,6 +116,9 @@ do
             MER=$2
             shift
             ;;
+        "--auto_bounds")
+            AUTO_BOUNDS=1
+            ;;
         "--paternal")
             PATERNAL=$2
             shift
@@ -144,9 +151,11 @@ echo "    lower(maternal): $MLOWER"
 echo "    upper(maternal): $MUPPER"
 echo "    lower(paternal): $PLOWER"
 echo "    upper(paternal): $PUPPER"
+echo "    auto_bounds    : $AUTO_BOUNDS"
 echo "HAST.sh in dir  : $SPATH"
 
 CLASSIFY=$SPATH"/classify"
+ANALYSIS=$SPATH"/analysis_kmercount.sh"
 
 # sanity check
 if [[ $MEMORY -lt 1  || $CPU -lt 1 || \
@@ -159,6 +168,10 @@ if [[ $MEMORY -lt 1  || $CPU -lt 1 || \
 fi
 if [[ ! -e $CLASSIFY ]] ; then 
     echo "ERROR : please run \"make\" command in $SPATH before using this script! exit..."
+    exit 1
+fi
+if [[ ! -e $ANALYSIS ]] ; then
+    echo "ERROR : \"$ANALYSIS\"  is missing. please download it from github. exit..."
     exit 1
 fi
 for x in $MATERNAL $PATERNAL $FILIAL
@@ -181,6 +194,15 @@ $JELLY count -m $MER -s $MEMORY"G" -t $CPU -C -o  paternal_mer_counts.jf $PATERN
 $JELLY dump maternal_mer_counts.jf            -o maternal.mer.fa
 $JELLY dump paternal_mer_counts.jf            -o paternal.mer.fa
 
+if [[ $AUTO_BOUNDS == 1 ]] ; then 
+    sh $ANALYSIS 
+    MLOWER=`grep LOWER_INDEX maternal.bounds.txt| awk -F '=' '{print $2}'`
+    MUPPER=`grep UPPER_INDEX maternal.bounds.txt| awk -F '=' '{print $2}'`
+    PLOWER=`grep LOWER_INDEX paternal.bounds.txt| awk -F '=' '{print $2}'`
+    PUPPER=`grep UPPER_INDEX paternal.bounds.txt| awk -F '=' '{print $2}'`
+fi
+echo "  the real used kmer-count bounds of maternal is [ $MLOWER , $MUPPER ] "
+echo "  the real used kmer-count bounds of paternal is [ $PLOWER , $PUPPER ] "
 # dump filter mers
 $JELLY dump -L $MLOWER -U $MUPPER maternal_mer_counts.jf -o maternal.mer.filter.fa
 $JELLY dump -L $PLOWER -U $PUPPER paternal_mer_counts.jf -o paternal.mer.filter.fa
