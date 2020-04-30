@@ -1,5 +1,8 @@
 # HAST
-Partition stLFR reads based on trio-binning using prenatally unique markers.
+A fast and memory effiective version of trio-binning .
+
+- Use jellyfish to replace meryl 
+- Rewrite classify.py by c++ and add multi-thread support .
 
 ## INSTALL
 
