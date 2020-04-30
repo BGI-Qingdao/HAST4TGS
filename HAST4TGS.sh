@@ -147,7 +147,6 @@ echo "    upper(paternal): $PUPPER"
 echo "HAST.sh in dir  : $SPATH"
 
 CLASSIFY=$SPATH"/classify"
-FILTER_FQ_BY_BARCODES_AWK=$SPATH"/filter_fq_by_barcodes.awk"
 
 # sanity check
 if [[ $MEMORY -lt 1  || $CPU -lt 1 || \
@@ -160,10 +159,6 @@ if [[ $MEMORY -lt 1  || $CPU -lt 1 || \
 fi
 if [[ ! -e $CLASSIFY ]] ; then 
     echo "ERROR : please run \"make\" command in $SPATH before using this script! exit..."
-    exit 1
-fi
-if [[ ! -e $FILTER_FQ_BY_BARCODES_AWK ]] ; then
-    echo "ERROR : \"$FILTER_FQ_BY_BARCODES_AWK\"  is missing. please download it from github. exit..."
     exit 1
 fi
 for x in $MATERNAL $PATERNAL $FILIAL
@@ -230,10 +225,20 @@ cat phasing.out |grep Read |grep haplotype0 |awk '{print $2}' > paternal.cut
 cat phasing.out |grep Read |grep haplotype1 |awk '{print $2}' > maternal.cut
 cat phasing.out |grep Read |grep ambiguous |awk '{print $2}' > ambiguous.cut
 # extract the reads
-awk  -F '@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' paternal.cut  $FILIAL > paternal.fasta
-awk  -F '@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' maternal.cut  $FILIAL > maternal.fasta
-awk  -F '@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' ambiguous.cut  $FILIAL > ambiguous.fasta
 
+for x in $FILIAL
+do
+    name=`basename $x`
+    if [[ ${name: -3} == ".gz" ]] ; then 
+        gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' paternal.cut  - >"maternal."$name
+        gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' maternal.cut  - >"paternal."$name
+        gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' ambiguous.cut - >"ambiguous."$name
+    else 
+        awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' paternal.cut  $x >"maternal."$name
+        awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' maternal.cut  $x >"paternal."$name
+        awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' ambiguous.cut $x >"ambiguous."$name
+    fi
+done
 echo "phase reads done"
 date
 echo "__END__"
