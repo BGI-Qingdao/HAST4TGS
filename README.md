@@ -19,7 +19,7 @@ Usage    :
 Usage    :
     ./HAST4TGS.sh [OPTION]
 
-Trio-phase filial stLFR reads based on paternal NGS reads and maternal NGS reads.
+A fast and memory effiective version of trio-binning .
 
 Options  :
         --paternal    paternal NGS reads file in fastq format.
