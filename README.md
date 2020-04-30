@@ -3,6 +3,7 @@ A fast and memory effiective version of trio-binning .
 
 - Use jellyfish to replace meryl 
 - Rewrite classify.py by c++ and add multi-thread support .
+- Add auto_bounds support . (default not open) 
 
 ## INSTALL
 
