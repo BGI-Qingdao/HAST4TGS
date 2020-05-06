@@ -1,9 +1,9 @@
 # HAST4TGS
 A version of HAST for TGS long reads, fast and memory-effiective trio-binning.
 
-- Use jellyfish to replace meryl 
-- Rewrite classify.py by c++ and add multi-thread support .
-- Add auto_bounds support . (default not open) 
+- Use jellyfish to generate and calculate k-mers instead of meryl; 
+- Rewrite classify.py by c++ to speed up and add multi-thread support;
+- Add a function to automatically generate k-mer frequency threholds. (default off) 
 
 ## INSTALL
 
