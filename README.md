@@ -1,5 +1,5 @@
-# HAST
-A fast and memory effiective version of trio-binning .
+# HAST4TGS
+A version of HAST for TGS long reads, fast and memory-effiective trio-binning.
 
 - Use jellyfish to replace meryl 
 - Rewrite classify.py by c++ and add multi-thread support .
