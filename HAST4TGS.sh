@@ -161,7 +161,6 @@ echo "    auto_bounds    : $AUTO_BOUNDS"
 echo "HAST.sh in dir  : $SPATH"
 
 CLASSIFY=$SPATH"/classify"
-FILTER_FQ_BY_BARCODES_AWK=$SPATH"/filter_fq_by_barcodes.awk"
 ANALYSIS=$SPATH"/analysis_kmercount.sh"
 
 # sanity check
@@ -183,10 +182,6 @@ if [[ ! -e $CLASSIFY ]] ; then
 fi
 if [[ ! -e $ANALYSIS ]] ; then
     echo "ERROR : \"$ANALYSIS\"  is missing. please download it from github. exit..."
-    exit 1
-fi
-if [[ ! -e $FILTER_FQ_BY_BARCODES_AWK ]] ; then
-    echo "ERROR : \"$FILTER_FQ_BY_BARCODES_AWK\"  is missing. please download it from github. exit..."
     exit 1
 fi
 for x in $MATERNAL $PATERNAL $FILIAL
@@ -266,7 +261,7 @@ if [[ $FORMAT == 'fasta' ]] ; then
     for x in $FILIAL
     do
         name=`basename $x`
-        if [[ ${name: -3} == ".gz" ]] ; then 
+        if [[ ${name: -3} == ".gz" ]] ; then
             name=${name%%.gz}
             gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' paternal.cut  - >"maternal."$name
             gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' maternal.cut  - >"paternal."$name
@@ -281,15 +276,15 @@ else
     for x in $FILIAL
     do
         name=`basename $x`
-        if [[ ${name: -3} == ".gz" ]] ; then 
+        if [[ ${name: -3} == ".gz" ]] ; then
             name=${name%%.gz}
-            gzip -dc $x | awk  -F '#|/' -f $FILTER_FQ_BY_BARCODES_AWK maternal.unique.barcodes - >"maternal."$name
-            gzip -dc $x | awk  -F '#|/' -f $FILTER_FQ_BY_BARCODES_AWK paternal.unique.barcodes - >"paternal."$name
-            gzip -dc $x | awk  -F '#|/' -f $FILTER_FQ_BY_BARCODES_AWK homozygous.unique.barcodes - >"homozygous."$name
+            gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' paternal.cut  - >"maternal."$name
+            gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' maternal.cut  - >"paternal."$name
+            gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' ambiguous.cut - >"ambiguous."$name
         else 
-            awk  -F '#|/' -f $FILTER_FQ_BY_BARCODES_AWK  maternal.unique.barcodes $x >"maternal."$name
-            awk  -F '#|/' -f $FILTER_FQ_BY_BARCODES_AWK  paternal.unique.barcodes $x >"paternal."$name
-            awk  -F '#|/' -f $FILTER_FQ_BY_BARCODES_AWK  homozygous.unique.barcodes $x >"homozygous."$name
+            awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' paternal.cut  $x >"maternal."$name
+            awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' maternal.cut  $x >"paternal."$name
+            awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' ambiguous.cut $x >"ambiguous."$name
         fi
     done
 fi
