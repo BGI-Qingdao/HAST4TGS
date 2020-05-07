@@ -4,49 +4,45 @@
 # usage function
 ###############################################################################
 function usage(){
-    echo "Usage    :"
-    echo "    ./HAST4TGS.sh [OPTION]" 
-    echo ""
-    echo "A fast and memory effiective version of trio-binning ."
-    echo ""
-    echo "Options  :"
-    echo "        --paternal    paternal NGS reads file in fastq format."
-    echo "                      ( note : gzip format IS NOT supported. ) "
-    echo "        --maternal    maternal NGS reads file in fastq format."
-    echo "                      ( note : gzip format IS NOT supported. ) "
-    echo "        --filial      filial TGS reads file in fasta format."
-    echo "                      file in gzip format is accepted, but filename must end by \".gz\"."
-    echo "        --thread      threads num."
-    echo "                      [ optional, default 8 thread. ]"
-    echo "        --memory      x (GB) of memory to initial hash table by jellyfish."
-    echo "                      ( note: real memory used maybe greater than this. )"
-    echo "                      [ optional, default 20GB. ]"
-    echo "        --jellyfish   jellyfish path."
-    echo "                      [ optional, default jellyfish. ]"
-    echo "        --mer         mer-size"
-    echo "                      [ optional, default 21. ]"
-    echo "        --m-lower     maternal kmer count tablle will ignore mer with count < m-lower."
-    echo "                      [ optional, default 9. ]"
-    echo "        --m-upper     maternal kmer count tablle will ignore mer with count > m-upper."
-    echo "                      [ optional, default 33. ]"
-    echo "        --p-lower     paternal kmer count tablle will ignore mer with count < p-lower."
-    echo "                      [ optional, default 9. ]"
-    echo "        --p-upper     paternal kmer count tablle will ignore mer with count > p-upper."
-    echo "                      [ optional, default 33. ]"
-    echo "        --auto_bounds calcuate lower and upper bounds by kmercount table."
-    echo "                      [ optional, default not trigger; no parameter. ]"
-    echo "                      ( note : if auto_bounds is open, it will overwrite --*-lower and --*-upper  ]"
-    echo "        --help        print this usage message."
-    echo "        "
-    echo "Examples :"
-    echo "    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.fasta"
-    echo ""
-    echo "    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.L01.fasta --filial son.L02.fasta"
-    echo ""
-    echo "    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq \\"
-    echo "                     --filial son.fasta --memory 20 --thread 20 \\"
-    echo "                     --mer 21 --p-lower=9 --p-upper=32 --m-lower=8 --p-upper=33 \\"
-    echo "                     --jellyfish /home/software/jellyfish/jellyfish-linux"
+echo """Options  :
+        --paternal    paternal NGS reads file in FASTQ format.
+                      ( note : gzip format is NOT supported. )
+        --maternal    maternal NGS reads file in FASTQ format.
+                      ( note : gzip format is NOT supported. )
+        --filial      filial TGS reads file in FASTA format.
+                      file in gzip format can be accepted, but filename must end by ".gz".
+        --thread      thread num.
+                      [ optional, default 8 threads. ]
+        --memory      x (GB) of memory to initial hash table by jellyfish.
+                      ( note: real memory used may be greater than this. )
+                      [ optional, default 20GB. ]
+        --jellyfish   jellyfish path.
+                      [ optional, default jellyfish. ]
+        --mer         mer-size
+                      [ optional, default 21. ]
+        --m-lower     maternal kmer frequency table will ignore kmers with count < m-lower.
+                      [ optional, default 9. ]
+        --m-upper     maternal kmer frequency table will ignore kmers with count > m-upper.
+                      [ optional, default 33. ]
+        --p-lower     paternal kmer frequency table will ignore kmers with count < p-lower.
+                      [ optional, default 9. ]
+        --p-upper     paternal kmer frequency table will ignore kmers with count > p-upper.
+                      [ optional, default 33. ]
+        --auto_bounds automatically calcuate lower and upper bounds based on kmer analysis.
+                      [ optional, default not trigger; no parameter. ]
+                      ( note : if auto_bounds is on, it will overwrite --*-lower and --*-upper  ]
+        --help        print this usage message.
+
+Examples :
+    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.fasta
+
+    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.L01.fasta --filial son.L02.fasta
+
+    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq \
+                     --filial son.fasta --memory 20 --thread 20 \
+                     --mer 21 --p-lower=9 --p-upper=32 --m-lower=8 --p-upper=33 \
+                     --jellyfish /home/software/jellyfish/jellyfish-linux
+"""
 }
 
 ###############################################################################
