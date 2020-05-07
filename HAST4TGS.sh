@@ -12,7 +12,7 @@ echo """Options  :
         --filial      filial TGS reads file in FASTA format.
                       file in gzip format can be accepted, but filename must end by ".gz".
         --format      fasta/fastq . set the format of --filial.
-                      [ optional, default fastq. ]
+                      [ optional, default fasta. ]
         --thread      thread num.
                       [ optional, default 8 threads. ]
         --memory      x (GB) of memory to initial hash table by jellyfish.
