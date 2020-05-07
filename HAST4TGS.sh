@@ -11,6 +11,8 @@ echo """Options  :
                       ( note : gzip format is NOT supported. )
         --filial      filial TGS reads file in FASTA format.
                       file in gzip format can be accepted, but filename must end by ".gz".
+        --format      fasta/fastq . set the format of --filial.
+                      [ optional, default fastq. ]
         --thread      thread num.
                       [ optional, default 8 threads. ]
         --memory      x (GB) of memory to initial hash table by jellyfish.
@@ -36,6 +38,8 @@ echo """Options  :
 Examples :
     ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.fasta
 
+    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.fastq --format fastq
+
     ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.L01.fasta --filial son.L02.fasta
 
     ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq \
@@ -60,6 +64,7 @@ PATERNAL=""
 MATERNAL=""
 FILIAL=""
 AUTO_BOUNDS=0
+FORMAT='fasta'
 SPATH=`dirname $0`
 ###############################################################################
 # parse arguments
@@ -127,6 +132,10 @@ do
             FILIAL=$2" "$FILIAL
             shift 
             ;;
+        "--format")
+            FORMAT=$2
+            shift
+            ;;
         *)
             echo "invalid params : \"$1\" . exit ... "
             exit
@@ -139,6 +148,7 @@ echo "HAST starting with : "
 echo "    paternal input : $PATERNAL"
 echo "    maternal input : $MATERNAL"
 echo "    filial input   : $FILIAL"
+echo "    filial format  : $FORMAT"
 echo "    jellyfish      : $JELLY"
 echo "    memory         : $MEMORY GB"
 echo "    thread         : $CPU "
@@ -151,6 +161,7 @@ echo "    auto_bounds    : $AUTO_BOUNDS"
 echo "HAST.sh in dir  : $SPATH"
 
 CLASSIFY=$SPATH"/classify"
+FILTER_FQ_BY_BARCODES_AWK=$SPATH"/filter_fq_by_barcodes.awk"
 ANALYSIS=$SPATH"/analysis_kmercount.sh"
 
 # sanity check
@@ -162,12 +173,20 @@ if [[ $MEMORY -lt 1  || $CPU -lt 1 || \
     echo "ERROR : arguments invalid ... exit!!! "
     exit 1
 fi
+if [[ $FORMAT != 'fasta' && $FORMAT != 'fastq' ]] ; then 
+    echo "ERROR : format invalid ... exit!!!"
+    exit 1
+fi
 if [[ ! -e $CLASSIFY ]] ; then 
     echo "ERROR : please run \"make\" command in $SPATH before using this script! exit..."
     exit 1
 fi
 if [[ ! -e $ANALYSIS ]] ; then
     echo "ERROR : \"$ANALYSIS\"  is missing. please download it from github. exit..."
+    exit 1
+fi
+if [[ ! -e $FILTER_FQ_BY_BARCODES_AWK ]] ; then
+    echo "ERROR : \"$FILTER_FQ_BY_BARCODES_AWK\"  is missing. please download it from github. exit..."
     exit 1
 fi
 for x in $MATERNAL $PATERNAL $FILIAL
@@ -237,26 +256,43 @@ do
     READ="$READ"" --read ""$x"
 done
 $CLASSIFY --hap paternal.unique.filter.mer --hap maternal.unique.filter.mer \
-    --thread $CPU  $READ >phasing.out  2>phasing.log
+    --thread $CPU  $READ --format $FORMAT >phasing.out  2>phasing.log
 
 cat phasing.out |grep Read |grep haplotype0 |awk '{print $2}' > paternal.cut
 cat phasing.out |grep Read |grep haplotype1 |awk '{print $2}' > maternal.cut
 cat phasing.out |grep Read |grep ambiguous |awk '{print $2}' > ambiguous.cut
 # extract the reads
-
-for x in $FILIAL
-do
-    name=`basename $x`
-    if [[ ${name: -3} == ".gz" ]] ; then 
-        gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' paternal.cut  - >"maternal."$name
-        gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' maternal.cut  - >"paternal."$name
-        gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' ambiguous.cut - >"ambiguous."$name
-    else 
-        awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' paternal.cut  $x >"maternal."$name
-        awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' maternal.cut  $x >"paternal."$name
-        awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' ambiguous.cut $x >"ambiguous."$name
-    fi
-done
+if [[ $FORMAT == 'fasta' ]] ; then
+    for x in $FILIAL
+    do
+        name=`basename $x`
+        if [[ ${name: -3} == ".gz" ]] ; then 
+            name=${name%%.gz}
+            gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' paternal.cut  - >"maternal."$name
+            gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' maternal.cut  - >"paternal."$name
+            gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' ambiguous.cut - >"ambiguous."$name
+        else 
+            awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' paternal.cut  $x >"maternal."$name
+            awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' maternal.cut  $x >"paternal."$name
+            awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' ambiguous.cut $x >"ambiguous."$name
+        fi
+    done
+else
+    for x in $FILIAL
+    do
+        name=`basename $x`
+        if [[ ${name: -3} == ".gz" ]] ; then 
+            name=${name%%.gz}
+            gzip -dc $x | awk  -F '#|/' -f $FILTER_FQ_BY_BARCODES_AWK maternal.unique.barcodes - >"maternal."$name
+            gzip -dc $x | awk  -F '#|/' -f $FILTER_FQ_BY_BARCODES_AWK paternal.unique.barcodes - >"paternal."$name
+            gzip -dc $x | awk  -F '#|/' -f $FILTER_FQ_BY_BARCODES_AWK homozygous.unique.barcodes - >"homozygous."$name
+        else 
+            awk  -F '#|/' -f $FILTER_FQ_BY_BARCODES_AWK  maternal.unique.barcodes $x >"maternal."$name
+            awk  -F '#|/' -f $FILTER_FQ_BY_BARCODES_AWK  paternal.unique.barcodes $x >"paternal."$name
+            awk  -F '#|/' -f $FILTER_FQ_BY_BARCODES_AWK  homozygous.unique.barcodes $x >"homozygous."$name
+        fi
+    done
+fi
 echo "phase reads done"
 date
 echo "__END__"

@@ -251,10 +251,33 @@ void processFastq(const std::string & file,int t_num){
     MultiThread mt(t_num);
     std::istream *in = openfile(file);
     long long id = 0 ;
+    while(!std::getline(*in,head).eof()){
+        if( head[0] == '>' ) {
+            std::cerr<<"fasta detected . ERROR . please use \"--format fasta\". exit ... "<<std::endl;
+            exit(1);
+        }
+        std::getline(*in,seq);
+        std::getline(*in,tmp);
+        std::getline(*in,tmp);
+        mt.submit(head, seq, id );
+        id ++ ;
+    }
+    mt.end=true;
+    delete in ;
+    mt.wait();
+    mt.data.PrintOutput();
+}
+void processFasta(const std::string & file,int t_num){
+    std::string head;
+    std::string seq;
+    std::string tmp;
+    MultiThread mt(t_num);
+    std::istream *in = openfile(file);
+    long long id = 0 ;
     while(!std::getline(*in,tmp).eof()){
         if( tmp.empty() ) continue ;
         if( tmp[0] == '@' || tmp[0] == '+' ) {
-            std::cerr<<"fastq detected . ERROR . exit ... "<<std::endl;
+            std::cerr<<"fasta detected . ERROR . please use \"--format fastq\". exit ... "<<std::endl;
             exit(1);
         }
         if( tmp[0] == '>' ) {
@@ -277,9 +300,10 @@ void processFastq(const std::string & file,int t_num){
 }
 
 void printUsage(){
-    std::cerr<<"Uasge :\n\tclassify_read --hap hap0.kmer --hap hap1.kmer --read read.fa [--read read_2.fa] [--thread t_num (8 default) ] "<<std::endl;
+    std::cerr<<"Uasge :\n\tclassify_read --hap hap0.kmer --hap hap1.kmer --read read.fa [--read read_2.fa] [--thread t_num (8 default) ] [--format fasta/fastq (default fasta)] "<<std::endl;
     std::cerr<<"notice : --read accept file in gzip format , but file must end by \".gz\""<<std::endl;
-    std::cerr<<"warn   : --read only accept fasta read !!!"<<std::endl;
+    std::cerr<<"warn   : --read default only accept fasta read."<<std::endl;
+    std::cerr<<"         add --format fastq if --read refer to fastq file."<<std::endl;
 }
 
 //
@@ -290,13 +314,15 @@ int main(int argc ,char ** argv ) {
     static struct option long_options[] = {
         {"hap",   required_argument, NULL, 'p'},
         {"read",  required_argument, NULL, 'r'},
+        {"format",required_argument, NULL, 'f'},
         {"thread",required_argument, NULL, 't'},
         {"help",  no_argument,       NULL, 'h'},
         {0, 0, 0, 0}
     };
-    static char optstring[] = "p:r:t:h";
+    static char optstring[] = "p:r:t:f:h";
     std::vector<std::string> haps;
     std::vector<std::string> read;
+    std::string format="fasta";
     int t_num=8;
     while(1){
         int c = getopt_long(argc, argv, optstring, long_options, NULL);
@@ -307,6 +333,9 @@ int main(int argc ,char ** argv ) {
                 break;
             case 'r':
                 read.push_back(std::string(optarg));
+                break;
+            case 'f':
+                format = std::string(optarg);
                 break;
             case 't':
                 t_num = atoi(optarg);
@@ -321,6 +350,10 @@ int main(int argc ,char ** argv ) {
         printUsage();
         return -1;
     }
+    if( format != "fasta" && format != "fastq" ){
+        std::cerr<<" ERROR : invalid format : ["<<format<<"] . exit ...\n";
+        return -1;
+    }
     logtime();
     std::cerr<<"__START__"<<std::endl;
     for( int i = 0 ; i<HAPLOTYPES ; i ++ ) {
@@ -331,7 +364,10 @@ int main(int argc ,char ** argv ) {
     for(const auto r : read ){
         std::cerr<<"__process read: "<<r<<std::endl;
         logtime();
-        processFastq(r,t_num);
+        if( format == "fasta")
+            processFasta(r,t_num);
+        else 
+            processFastq(r,t_num);
         std::cerr<<"__process read done__"<<std::endl;
         logtime();
     }
