@@ -18,6 +18,10 @@ make
 ### Working with exist kmers datasets
 
 ```
+Usage    :
+    ./CLASSIFY_ONLY.sh [OPTION]
+
+Trio phase TGS reads use exist kmer datasets.
 Options  :
         --paternal_mer paternal unique kmers
         --maternal_mer maternal unique kmers

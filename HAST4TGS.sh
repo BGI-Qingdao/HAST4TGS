@@ -4,7 +4,13 @@
 # usage function
 ###############################################################################
 function usage(){
-echo """Options  :
+echo """
+Usage    :
+    ./HAST4TGS.sh [OPTION]
+
+A version of HAST for TGS long reads, fast and memory-effiective trio-binning.
+
+Options  :
         --paternal    paternal NGS reads file in FASTQ format.
                       ( note : gzip format is NOT supported. )
         --maternal    maternal NGS reads file in FASTQ format.

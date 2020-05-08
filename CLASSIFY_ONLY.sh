@@ -4,7 +4,13 @@
 # usage function
 ###############################################################################
 function usage(){
-echo """Options  :
+echo """
+Usage    :
+    ./CLASSIFY_ONLY.sh [OPTION]
+
+Trio phase TGS reads use exist kmer datasets.
+
+Options  :
         --paternal_mer paternal unique kmers
         --maternal_mer maternal unique kmers
         --filial       filial TGS reads file in FASTA format.
