@@ -15,6 +15,35 @@ make
 
 ## USAGE
 
+### Working with exist kmers datasets
+
+```
+Options  :
+        --paternal_mer paternal unique kmers
+        --maternal_mer maternal unique kmers
+        --filial       filial TGS reads file in FASTA format.
+                       file in gzip format can be accepted, but filename must end by .gz.
+        --format       fasta/fastq . set the format of --filial.
+                       [ optional, default fasta. ]
+        --thread       thread num.
+                       [ optional, default 8 threads. ]
+        --memory       x (GB) of memory to initial hash table by jellyfish.
+                       ( note: real memory used may be greater than this. )
+                       [ optional, default 20GB. ]
+        --help         print this usage message.
+
+Examples :
+    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fasta
+
+    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fastq --format fastq
+    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fasta --filial son2.fasta
+
+    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fasta
+                                        --memory 20 --thread 20
+```
+
+### Full pipeline
+
 ```
 Usage    :
     ./HAST4TGS.sh [OPTION]
