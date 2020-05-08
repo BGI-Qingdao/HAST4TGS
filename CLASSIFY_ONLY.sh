@@ -13,9 +13,6 @@ echo """Options  :
                        [ optional, default fasta. ]
         --thread       thread num.
                        [ optional, default 8 threads. ]
-        --memory       x (GB) of memory to initial hash table by jellyfish.
-                       ( note: real memory used may be greater than this. )
-                       [ optional, default 20GB. ]
         --help         print this usage message.
 
 Examples :
@@ -24,8 +21,7 @@ Examples :
     ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fastq --format fastq
     ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fasta --filial son2.fasta
 
-    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fasta
-                                        --memory 20 --thread 20
+    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fasta --thread 20
 """
 }
 
@@ -33,7 +29,6 @@ Examples :
 # basic variables 
 ###############################################################################
 CPU=8
-MEMORY=10
 PATERNAL=""
 MATERNAL=""
 FILIAL=""
@@ -57,10 +52,6 @@ do
         "--help")
             usage
             exit 0
-            ;;
-        "--memory")
-            MEMORY=$2
-            shift
             ;;
         "--thread")
             CPU=$2
@@ -95,15 +86,13 @@ echo "    paternal kmers : $PATERNAL"
 echo "    maternal kmers : $MATERNAL"
 echo "    filial input   : $FILIAL"
 echo "    filial format  : $FORMAT"
-echo "    memory         : $MEMORY GB"
 echo "    thread         : $CPU "
 echo "CLASSIFY_ONLY.sh in dir  : $SPATH"
 
 CLASSIFY=$SPATH"/classify"
 
 # sanity check
-if [[ $MEMORY -lt 1  || $CPU -lt 1 || \
-    -z $PATERNAL || -z $MATERNAL || -z $FILIAL ]] ; then
+if [[ $CPU -lt 1 || -z $PATERNAL || -z $MATERNAL || -z $FILIAL ]] ; then
     echo "ERROR : arguments invalid ... exit!!! "
     exit 1
 fi
