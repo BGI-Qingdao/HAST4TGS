@@ -198,48 +198,110 @@ echo "__START__"
 ###############################################################################
 # count NGS reads
 echo "extract unique mers by jellyfish ..."
-$JELLY count -m $MER -s $MEMORY"G" -t $CPU -C -o  maternal_mer_counts.jf $MATERNAL
-$JELLY count -m $MER -s $MEMORY"G" -t $CPU -C -o  paternal_mer_counts.jf $PATERNAL
+if [[ ! -e "step_01_done" ]] ; then
+    $JELLY count -m $MER -s $MEMORY"G" -t $CPU -C -o  maternal_mer_counts.jf $MATERNAL || exit 1
+    date >> "step_01_done"
+fi
+if [[ ! -e "step_02_done" ]] ; then
+    $JELLY count -m $MER -s $MEMORY"G" -t $CPU -C -o  paternal_mer_counts.jf $PATERNAL || exit 1
+    date >> "step_02_done"
+fi
 # dump all mers
-$JELLY dump maternal_mer_counts.jf            -o maternal.mer.fa
-$JELLY dump paternal_mer_counts.jf            -o paternal.mer.fa
+if [[ ! -e "step_03_done" ]] ; then
+    $JELLY dump maternal_mer_counts.jf            -o maternal.mer.fa || exit 1
+    date >> "step_03_done"
+fi
+
+if [[ ! -e "step_04_done" ]] ; then
+    $JELLY dump paternal_mer_counts.jf            -o paternal.mer.fa || exit 1
+    date >> "step_04_done"
+fi
 
 if [[ $AUTO_BOUNDS == 1 ]] ; then 
-    sh $ANALYSIS 
+    if [[ ! -e "step_04_1_done" ]] ; then
+        sh $ANALYSIS || exit 1
+        date >> "step_04_1_done"
+    fi
     MLOWER=`grep LOWER_INDEX maternal.bounds.txt| awk -F '=' '{print $2}'`
     MUPPER=`grep UPPER_INDEX maternal.bounds.txt| awk -F '=' '{print $2}'`
     PLOWER=`grep LOWER_INDEX paternal.bounds.txt| awk -F '=' '{print $2}'`
     PUPPER=`grep UPPER_INDEX paternal.bounds.txt| awk -F '=' '{print $2}'`
 fi
+
 echo "  the real used kmer-count bounds of maternal is [ $MLOWER , $MUPPER ] "
 echo "  the real used kmer-count bounds of paternal is [ $PLOWER , $PUPPER ] "
 # dump filter mers
-$JELLY dump -L $MLOWER -U $MUPPER maternal_mer_counts.jf -o maternal.mer.filter.fa
-$JELLY dump -L $PLOWER -U $PUPPER paternal_mer_counts.jf -o paternal.mer.filter.fa
-# rm temporary files
-rm maternal_mer_counts.jf paternal_mer_counts.jf
-# mix 1 copy of paternal mers and 2 copy of maternal mers
-cat maternal.mer.fa maternal.mer.fa paternal.mer.fa >mixed.fa
-# count p/maternal mixed mers
-$JELLY count -m $MER -s $MEMORY"G" -t $CPU -C -o mixed_mer_counts.js mixed.fa
-# count==1 refer to paternal unique mers
-$JELLY dump -U 1 mixed_mer_counts.js          >paternal.mer.unique.fa
-# count==2 refer to maternal unique mers
-$JELLY dump -L 2 -U 2 mixed_mer_counts.js     >maternal.mer.unique.fa
-# rm temporary files
-rm mixed.fa mixed_mer_counts.js
-# mix unique mers and filter mers
-cat paternal.mer.unique.fa paternal.mer.filter.fa > paternal_mixed.mer.fa
-cat maternal.mer.unique.fa maternal.mer.filter.fa > maternal_mixed.mer.fa
-# count unique and filer mers
-$JELLY count -m $MER -s $MEMORY"G" -t $CPU -C -o paternal_mixed_mer_counts.js paternal_mixed.mer.fa
-$JELLY count -m $MER -s $MEMORY"G" -t $CPU -C -o maternal_mixed_mer_counts.js maternal_mixed.mer.fa
-# extrat both unique and filter mers
-$JELLY dump -t -c -L 2 -U 2 paternal_mixed_mer_counts.js | awk '{print $1}' >paternal.unique.filter.mer
-$JELLY dump -t -c -L 2 -U 2 maternal_mixed_mer_counts.js | awk '{print $1}' >maternal.unique.filter.mer
-# rm temporary files
-rm paternal_mixed.mer.fa paternal_mixed_mer_counts.js
-rm maternal_mixed.mer.fa maternal_mixed_mer_counts.js
+if [[ ! -e "step_05_done" ]] ; then
+    $JELLY dump -L $MLOWER -U $MUPPER maternal_mer_counts.jf -o maternal.mer.filter.fa || exit 1
+    date >> "step_05_done"
+fi
+if [[ ! -e "step_06_done" ]] ; then
+    $JELLY dump -L $PLOWER -U $PUPPER paternal_mer_counts.jf -o paternal.mer.filter.fa || exit 1
+    date >> "step_06_done"
+fi
+if [[ ! -e "step_07_done" ]] ; then
+    # rm temporary files
+    rm maternal_mer_counts.jf paternal_mer_counts.jf
+    date >> "step_07_done"
+fi
+
+if [[ ! -e "step_08_done" ]] ; then
+    # rm temporary files
+    # mix 1 copy of paternal mers and 2 copy of maternal mers
+    cat maternal.mer.fa maternal.mer.fa paternal.mer.fa >mixed.fa || exit 1
+    date >> "step_08_done"
+fi
+
+if [[ ! -e 'step_09_done' ]] ; then
+    # count p/maternal mixed mers
+    $JELLY count -m $MER -s $MEMORY"G" -t $CPU -C -o mixed_mer_counts.js mixed.fa || exit 1
+    date >> 'step_09_done'
+fi
+if [[ ! -e "step_10_done" ]] ; then
+    # count==1 refer to paternal unique mers
+    $JELLY dump -U 1 mixed_mer_counts.js          >paternal.mer.unique.fa || exit 1
+    date >> "step_10_done"
+fi
+if [[ ! -e "step_11_done" ]] ; then
+    # count==2 refer to maternal unique mers
+    $JELLY dump -L 2 -U 2 mixed_mer_counts.js     >maternal.mer.unique.fa || exit 1
+    date >> "step_11_done"
+fi
+if [[ ! -e "step_12_done" ]] ; then
+    # rm temporary files
+    rm mixed.fa mixed_mer_counts.js
+    date >> "step_12_done"
+fi
+if [[ ! -e "step_13_done" ]] ; then
+    # mix unique mers and filter mers
+    cat paternal.mer.unique.fa paternal.mer.filter.fa > paternal_mixed.mer.fa || exit 1
+    cat maternal.mer.unique.fa maternal.mer.filter.fa > maternal_mixed.mer.fa || exit 1
+    date >> "step_13_done"
+fi
+if [[ ! -e "step_14_done" ]] ; then
+    # count unique and filer mers
+    $JELLY count -m $MER -s $MEMORY"G" -t $CPU -C -o paternal_mixed_mer_counts.js paternal_mixed.mer.fa || exit 1
+    date >> "step_14_done"
+fi
+if [[ ! -e "step_15_done" ]] ; then
+    $JELLY count -m $MER -s $MEMORY"G" -t $CPU -C -o maternal_mixed_mer_counts.js maternal_mixed.mer.fa || exit 1
+    date >> "step_15_done"
+fi
+if [[ ! -e "step_16_done" ]] ; then
+    # extrat both unique and filter mers
+    $JELLY dump -t -c -L 2 -U 2 paternal_mixed_mer_counts.js | awk '{print $1}' >paternal.unique.filter.mer || exit 1
+    date >> "step_16_done"
+fi
+if [[ ! -e "step_17_done" ]] ; then
+    $JELLY dump -t -c -L 2 -U 2 maternal_mixed_mer_counts.js | awk '{print $1}' >maternal.unique.filter.mer || exit 1
+    date >> "step_17_done"
+fi
+if [[ ! -e "step_18_done" ]] ; then
+    # rm temporary files
+    rm paternal_mixed.mer.fa paternal_mixed_mer_counts.js
+    rm maternal_mixed.mer.fa maternal_mixed_mer_counts.js
+    date >> "step_18_done"
+fi
 echo "extract unique mers done..."
 date
 ###############################################################################
@@ -250,43 +312,52 @@ for x in $FILIAL
 do 
     READ="$READ"" --read ""$x"
 done
-$CLASSIFY --hap paternal.unique.filter.mer --hap maternal.unique.filter.mer \
-    --thread $CPU  $READ --format $FORMAT >phasing.out  2>phasing.log
+if [[ ! -e "step_19_done" ]] ; then
+    $CLASSIFY --hap paternal.unique.filter.mer --hap maternal.unique.filter.mer \
+        --thread $CPU  $READ --format $FORMAT >phasing.out  2>phasing.log || exit 1
+    date >> "step_19_done"
+fi
 
-cat phasing.out |grep Read |grep haplotype0 |awk '{print $2}' > paternal.cut
-cat phasing.out |grep Read |grep haplotype1 |awk '{print $2}' > maternal.cut
-cat phasing.out |grep Read |grep ambiguous |awk '{print $2}' > ambiguous.cut
-# extract the reads
-if [[ $FORMAT == 'fasta' ]] ; then
-    for x in $FILIAL
-    do
-        name=`basename $x`
-        if [[ ${name: -3} == ".gz" ]] ; then
-            name=${name%%.gz}
-            gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' paternal.cut  - >"maternal."$name
-            gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' maternal.cut  - >"paternal."$name
-            gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' ambiguous.cut - >"ambiguous."$name
-        else 
-            awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' paternal.cut  $x >"maternal."$name
-            awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' maternal.cut  $x >"paternal."$name
-            awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' ambiguous.cut $x >"ambiguous."$name
-        fi
-    done
-else
-    for x in $FILIAL
-    do
-        name=`basename $x`
-        if [[ ${name: -3} == ".gz" ]] ; then
-            name=${name%%.gz}
-            gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' paternal.cut  - >"maternal."$name
-            gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' maternal.cut  - >"paternal."$name
-            gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' ambiguous.cut - >"ambiguous."$name
-        else 
-            awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' paternal.cut  $x >"maternal."$name
-            awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' maternal.cut  $x >"paternal."$name
-            awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' ambiguous.cut $x >"ambiguous."$name
-        fi
-    done
+if [[ ! -e "step_20_done" ]] ; then
+    cat phasing.out |grep Read |grep haplotype0 |awk '{print $2}' > paternal.cut
+    cat phasing.out |grep Read |grep haplotype1 |awk '{print $2}' > maternal.cut
+    cat phasing.out |grep Read |grep ambiguous |awk '{print $2}' > ambiguous.cut
+    date >> "step_20_done"
+fi
+if [[ ! -e "step_21_done" ]] ; then
+    # extract the reads
+    if [[ $FORMAT == 'fasta' ]] ; then
+        for x in $FILIAL
+        do
+            name=`basename $x`
+            if [[ ${name: -3} == ".gz" ]] ; then
+                name=${name%%.gz}
+                gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' paternal.cut  - >"maternal."$name
+                gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' maternal.cut  - >"paternal."$name
+                gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' ambiguous.cut - >"ambiguous."$name
+            else 
+                awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' paternal.cut  $x >"maternal."$name
+                awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' maternal.cut  $x >"paternal."$name
+                awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; c=0}  } } }' ambiguous.cut $x >"ambiguous."$name
+            fi
+        done
+    else
+        for x in $FILIAL
+        do
+            name=`basename $x`
+            if [[ ${name: -3} == ".gz" ]] ; then
+                name=${name%%.gz}
+                gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' paternal.cut  - >"maternal."$name
+                gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' maternal.cut  - >"paternal."$name
+                gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' ambiguous.cut - >"ambiguous."$name
+            else 
+                awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' paternal.cut  $x >"maternal."$name
+                awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' maternal.cut  $x >"paternal."$name
+                awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %4==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' ambiguous.cut $x >"ambiguous."$name
+            fi
+        done
+    fi
+    date >> "step_21_done"
 fi
 echo "phase reads done"
 date
