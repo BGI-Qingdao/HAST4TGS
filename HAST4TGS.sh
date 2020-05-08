@@ -249,6 +249,8 @@ if [[ ! -e "step_08_done" ]] ; then
     # rm temporary files
     # mix 1 copy of paternal mers and 2 copy of maternal mers
     cat maternal.mer.fa maternal.mer.fa paternal.mer.fa >mixed.fa || exit 1
+    rm maternal.mer.fa
+    rm maternal.mer.fa
     date >> "step_08_done"
 fi
 
@@ -276,6 +278,10 @@ if [[ ! -e "step_13_done" ]] ; then
     # mix unique mers and filter mers
     cat paternal.mer.unique.fa paternal.mer.filter.fa > paternal_mixed.mer.fa || exit 1
     cat maternal.mer.unique.fa maternal.mer.filter.fa > maternal_mixed.mer.fa || exit 1
+    rm paternal.mer.unique.fa
+    rm paternal.mer.filter.fa
+    rm maternal.mer.filter.fa
+    rm maternal.mer.unique.fa
     date >> "step_13_done"
 fi
 if [[ ! -e "step_14_done" ]] ; then
