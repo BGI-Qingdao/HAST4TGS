@@ -256,7 +256,7 @@ if [[ ! -e "step_08_done" ]] ; then
     # mix 1 copy of paternal mers and 2 copy of maternal mers
     cat maternal.mer.fa maternal.mer.fa paternal.mer.fa >mixed.fa || exit 1
     rm maternal.mer.fa
-    rm maternal.mer.fa
+    rm paternal.mer.fa
     date >> "step_08_done"
 fi
 
