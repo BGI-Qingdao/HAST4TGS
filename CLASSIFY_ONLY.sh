@@ -147,13 +147,13 @@ if [[ ! -e "step_21_done" ]] ; then
             name=`basename $x`
             if [[ ${name: -3} == ".gz" ]] ; then
                 name=${name%%.gz}
-                gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ;}  } } }' paternal.cut  - >"paternal."$name
-                gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' maternal.cut  - >"maternal."$name
-                gzip -dc $x | awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' ambiguous.cut - >"ambiguous."$name
+                gzip -dc $x | awk  -F '>| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if( NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ;}  } } }' paternal.cut  - >"paternal."$name
+                gzip -dc $x | awk  -F '>| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if( NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' maternal.cut  - >"maternal."$name
+                gzip -dc $x | awk  -F '>| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if( NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' ambiguous.cut - >"ambiguous."$name
             else 
-                awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' paternal.cut  $x >"paternal."$name
-                awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ;}  } } }' maternal.cut  $x >"maternal."$name
-                awk  -F '>|@| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if(FNR %2==1 && NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' ambiguous.cut $x >"ambiguous."$name
+                awk  -F '>| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if( NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' paternal.cut  $x >"paternal."$name
+                awk  -F '>| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if( NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ;}  } } }' maternal.cut  $x >"maternal."$name
+                awk  -F '>| '  ' {if( FILENAME == ARGV[1] ) { s[$1]=1} else { if( NF>1){ if ($2 in s ){ print $0 ; c=1;} else {c=0} } else { if(c==1) { print $0 ; }  } } }' ambiguous.cut $x >"ambiguous."$name
             fi
         done
     else
