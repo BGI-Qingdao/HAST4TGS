@@ -75,23 +75,8 @@ struct OutputCache {
     struct ReadInfo {
         long long  read_id;
         std::string name;
-        double hapCounts[HAPLOTYPES];
-        std::string hapCounts_Str() const {
-            std::ostringstream ost;
-            char buffer[30];
-            for( int i = 0 ; i < 30 ; i++ ) buffer[i] = 0 ;
-            ost<<'{';
-            bool first = true ;
-            for( int i = 0 ; i < HAPLOTYPES ; i++ ){
-                if( hapCounts[i] == 0 ) continue ;
-                if( ! first ) ost<<", ";
-                snprintf(buffer,29,"%d: %.15e",i,hapCounts[i]);
-                ost<<buffer;
-                first = false ;
-            }
-            ost<<'}';
-            return ost.str() ;
-        }
+        int hapCounts[HAPLOTYPES];
+        int read_length ;
     };
     std::mutex mm;
     std::map<int , ReadInfo> output_cache;
@@ -104,32 +89,44 @@ struct OutputCache {
     void PrintOutput() const {
         for( const auto & pair : output_cache) {
             const auto & data = pair.second;
-            double readHapCount = 0 ; 
+            double readHapCount = 0 ;
             double secondBest = 0 ;
-            std::string readHap = "";
+            std::string readHap = "amibigous";
+            double probablity[HAPLOTYPES];
+            double density[HAPLOTYPES];
             for( int i = 0 ; i<HAPLOTYPES ; i++ ) {
-                if( data.hapCounts[i] > 0 and data.hapCounts[i] < readHapCount and data.hapCounts[i] > secondBest)
-                    secondBest = data.hapCounts[i];
+                probablity[i] = double(data.hapCounts[i]) / double(g_kmers[i].size());
+                density[i] = double(data.hapCounts[i]) / double( data.read_length -g_K  + 1 );
+            }
+            for( int i = 0 ; i<HAPLOTYPES ; i++ ) {
+                if( probablity[i] > 0 and probablity[i] < readHapCount and probablity[i] > secondBest)
+                    secondBest = probablity[i];
 
-                if( data.hapCounts[i] > 0 and data.hapCounts[i] > readHapCount){
+                if( probablity[i] > 0 and probablity[i] > readHapCount){
                     readHap = "haplotype"+std::to_string(i);
                     secondBest = readHapCount;
-                    readHapCount = data.hapCounts[i];
+                    readHapCount = probablity[i];
                 }
             }
-
             if( secondBest == 0 and readHapCount != 0 )
-                printf("Read %s classified as %s with %s\n",data.name.c_str(), readHap.c_str(), data.hapCounts_Str().c_str());
+                std::cout<<"Read\t"<<data.name<<"\t"<<readHap<<"\t"<<data.read_length;
             else if( readHapCount == 0 and secondBest == 0 )
-                printf("Read %s has no distringuising mers, ambiguous\n",(data.name.c_str()));
+                std::cout<<"Read\t"<<data.name<<"\t"<<"ambiguous\t"<<data.read_length;
             else if( readHapCount == 0 and secondBest != 0 ) {
                 printf("Not possible!\n");
                 exit(1);
             }
             else if ( readHapCount / secondBest > 1 )
-                printf ("Read %s classified as %s due to %.6f but second best existed with %.6f all counts %s\n",data.name.c_str(), readHap.c_str(), readHapCount, secondBest, data.hapCounts_Str().c_str());
+                std::cout<<"Read\t"<<data.name<<"\t"<<readHap<<"\t"<<data.read_length;
             else
-                printf("Read %s is amibigous unalbe to classify due to %.6f and %.6f\n",data.name.c_str(), readHapCount, secondBest); 
+                std::cout<<"Read\t"<<data.name<<"\t"<<"ambiguous\t"<<data.read_length;
+            for(int i = 0 ; i<HAPLOTYPES ; i++ ) {
+                std::cout<<"\t"<<probablity[i];
+            }
+            for(int i = 0 ; i<HAPLOTYPES ; i++ ) {
+                std::cout<<"\t"<<density[i];
+            }
+            std::cout<<'\n';
         }
     }
 };
@@ -204,6 +201,7 @@ struct MultiThread {
         OutputCache::ReadInfo tmp ;
         tmp.read_id = readid ;
         tmp.name = head.substr(1) ;
+        tmp.read_length = seq.size();
         for(int i = 0 ; i< HAPLOTYPES; i++ ) tmp.hapCounts[i]=0;
         for(int i = 0 ; i <(int)seq.size()-g_K+1;i++){
             std::string kmer = seq.substr(i,g_K);
@@ -211,8 +209,8 @@ struct MultiThread {
                 if( g_kmers[j].find(kmer) != g_kmers[j].end() )
                     tmp.hapCounts[j] ++ ;
         }
-        for( int j = 0 ; j< HAPLOTYPES; j++ )
-            tmp.hapCounts[j] /= total_kmers[j];
+        //for( int j = 0 ; j< HAPLOTYPES; j++ )
+        //    tmp.hapCounts[j] /= total_kmers[j];
         data.SaveOutput(tmp);
     }
     void submit(std::string & head ,std::string & seq, long long id){
