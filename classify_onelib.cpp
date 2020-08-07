@@ -44,7 +44,7 @@ std::string reverse_complement(const std::string & kmer){
 //
 // load & cache maternal unique kmer & paternal unique kmer
 //
-#define HAPLOTYPES 2
+#define HAPLOTYPES 1
 std::unordered_set<std::string> g_kmers[HAPLOTYPES];
 int g_K=0;
 int total_kmers[HAPLOTYPES];
@@ -120,6 +120,7 @@ struct OutputCache {
                 std::cout<<"Read\t"<<data.name<<"\t"<<readHap<<"\t"<<data.read_length;
             else
                 std::cout<<"Read\t"<<data.name<<"\t"<<"ambiguous\t"<<data.read_length;
+
             for(int i = 0 ; i<HAPLOTYPES ; i++ ) {
                 std::cout<<"\t"<<probablity[i];
             }
