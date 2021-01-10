@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_PATH=`dirname $0`
-SCRIPT_PATH=`realpath $SCRIPT_PATH`
+#SCRIPT_PATH=`realpath $SCRIPT_PATH`
 
 perl $SCRIPT_PATH"/split.pl" $* || exit 1
 tags=`seq -w 1 100`

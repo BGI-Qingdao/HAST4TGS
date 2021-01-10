@@ -1,7 +1,6 @@
 #!/bin/bash
 
 path=`dirname $0`
-path=`realpath $path`
 MERYL=$path"/meryl-1.0/meryl"
 # calculate kmercount-count table and ordered print it for maternal mers
 cd maternal_meryl 

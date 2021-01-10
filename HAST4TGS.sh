@@ -117,11 +117,11 @@ do
             AUTO_BOUNDS=1
             ;;
         "--paternal")
-            PATERNAL=$2
+            PATERNAL=$2" "$PATERNAL
             shift
             ;;
         "--maternal")
-            MATERNAL=$2
+            MATERNAL=$2" "$MATERNAL
             shift
             ;;
         "--filial")
