@@ -11,5 +11,5 @@ classify_onelib : classify_onelib.cpp gzstream/gzstream.C gzstream/gzstream.h
 	g++ -g -std=c++11 classify_onelib.cpp gzstream.o -lz -lpthread -o classify_onelib
 
 clean :
-	rm -f classify
+	rm -f classify classify_onelib
 	rm -f *.o gzstream/*.o
