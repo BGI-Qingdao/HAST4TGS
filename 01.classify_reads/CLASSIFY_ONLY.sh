@@ -15,7 +15,7 @@ Options  :
         --maternal_mer maternal unique kmers
         --offspring    offspring TGS reads file in FASTA format.
                        file in gzip format can be accepted, but filename must end by ".gz".
-        --format       fasta/fastq . set the format of --filial.
+        --format       fasta/fastq . set the format of --offspring.
                        [ optional, default fasta. ]
         --thread       thread num.
                        [ optional, default 8 threads. ]
@@ -25,7 +25,7 @@ Examples :
     ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --offspring son.fasta
 
     ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --offspring son.fastq --format fastq
-    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --offspring son.fasta --filial son2.fasta
+    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --offspring son.fasta --offspring son2.fasta
 
     ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --offspring son.fasta --thread 20
 """
