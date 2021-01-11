@@ -120,7 +120,7 @@ done
 date
 echo "__START__"
 ###############################################################################
-# phase filial barcode based on unique and filter mers of paternal and maternal
+# phase offspring barcode based on unique and filter mers of paternal and maternal
 ###############################################################################
 echo "extract unique barcode by classify ..."
 for x in $FILIAL

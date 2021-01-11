@@ -13,7 +13,7 @@ A version of HAST for TGS long reads, fast and memory-effiective trio-binning.
 Options  :
         --paternal    paternal NGS reads file in FASTA/Q format.
         --maternal    maternal NGS reads file in FASTA/Q format.
-        --offspring   filial TGS reads file in FASTA format.
+        --offspring   offspring TGS reads file in FASTA format.
                       file in gzip format can be accepted, but filename must end by ".gz".
         --format      fasta/fastq . set the format of --offspring.
                       [ optional, default fasta. ]
@@ -216,7 +216,7 @@ fi
 date
 echo "build unshared-kmer done"
 ###############################################################################
-# phase filial barcode based on unique and filter mers of paternal and maternal
+# phase offspring barcode based on unique and filter mers of paternal and maternal
 ###############################################################################
 echo "phase reads by classify ..."
 date
