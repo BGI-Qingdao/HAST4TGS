@@ -13,7 +13,7 @@ A version of HAST for TGS long reads, fast and memory-effiective trio-binning.
 Options  :
         --paternal    paternal NGS reads file in FASTA/Q format.
         --maternal    maternal NGS reads file in FASTA/Q format.
-        --filial      filial TGS reads file in FASTA format.
+        --offspring   filial TGS reads file in FASTA format.
                       file in gzip format can be accepted, but filename must end by ".gz".
         --format      fasta/fastq . set the format of --filial.
                       [ optional, default fasta. ]
@@ -38,14 +38,14 @@ Options  :
         --help        print this usage message.
 
 Examples :
-    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.fasta --auto_bounds
+    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --offspring son.fasta --auto_bounds
 
-    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.fastq --format fastq --auto_bounds
+    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --offspring son.fastq --format fastq --auto_bounds
 
-    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --filial son.L01.fasta --filial son.L02.fasta --auto_bounds
+    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --offspring son.L01.fasta --filial son.L02.fasta --auto_bounds
 
     ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq \
-                     --filial son.fasta --memory 20 --thread 20 \
+                     --offspring son.fasta --memory 20 --thread 20 \
                      --mer 21 --p-lower=9 --p-upper=32 --m-lower=8 --p-upper=33
 """
 }
@@ -124,7 +124,7 @@ do
             MATERNAL=$2" "$MATERNAL
             shift
             ;;
-        "--filial")
+        "--offspring")
             FILIAL=$2" "$FILIAL
             shift 
             ;;
