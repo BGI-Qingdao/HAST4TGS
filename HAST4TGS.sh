@@ -143,8 +143,8 @@ done
 echo "HAST starting with : "
 echo "    paternal input : $PATERNAL"
 echo "    maternal input : $MATERNAL"
-echo "    filial input   : $FILIAL"
-echo "    filial format  : $FORMAT"
+echo "    offspring input   : $FILIAL"
+echo "    offspring format  : $FORMAT"
 echo "    memory         : $MEMORY GB"
 echo "    thread         : $CPU "
 echo "    mer            : $MER "
@@ -222,7 +222,7 @@ echo "phase reads by classify ..."
 date
 $STEP1 --paternal_mer paternal.unique.filter.mer \
        --maternal_mer maternal.unique.filter.mer \
-       --filial       $FILIAL \
+       --offspring       $FILIAL \
        --format       $FORMAT \
        --thread       $CPU  >step1.log 2>step1.err
 echo "phase reads done"
