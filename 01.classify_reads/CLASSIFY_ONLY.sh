@@ -13,7 +13,7 @@ Trio phase TGS reads use exist kmer datasets.
 Options  :
         --paternal_mer paternal unique kmers
         --maternal_mer maternal unique kmers
-        --filial       filial TGS reads file in FASTA format.
+        --offspring    offspring TGS reads file in FASTA format.
                        file in gzip format can be accepted, but filename must end by ".gz".
         --format       fasta/fastq . set the format of --filial.
                        [ optional, default fasta. ]
@@ -22,12 +22,12 @@ Options  :
         --help         print this usage message.
 
 Examples :
-    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fasta
+    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --offspring son.fasta
 
-    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fastq --format fastq
-    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fasta --filial son2.fasta
+    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --offspring son.fastq --format fastq
+    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --offspring son.fasta --filial son2.fasta
 
-    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fasta --thread 20
+    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --offspring son.fasta --thread 20
 """
 }
 
@@ -71,7 +71,7 @@ do
             MATERNAL=$2
             shift
             ;;
-        "--filial")
+        "--offspring")
             FILIAL=$2" "$FILIAL
             shift 
             ;;
@@ -90,8 +90,8 @@ done
 echo "CLASSIFY_ONLY starting with : "
 echo "    paternal kmers : $PATERNAL"
 echo "    maternal kmers : $MATERNAL"
-echo "    filial input   : $FILIAL"
-echo "    filial format  : $FORMAT"
+echo "    offspring input   : $FILIAL"
+echo "    offspring format  : $FORMAT"
 echo "    thread         : $CPU "
 echo "CLASSIFY_ONLY.sh in dir  : $SPATH"
 
