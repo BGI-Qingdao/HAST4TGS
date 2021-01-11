@@ -15,7 +15,7 @@ Options  :
         --maternal    maternal NGS reads file in FASTA/Q format.
         --offspring   filial TGS reads file in FASTA format.
                       file in gzip format can be accepted, but filename must end by ".gz".
-        --format      fasta/fastq . set the format of --filial.
+        --format      fasta/fastq . set the format of --offspring.
                       [ optional, default fasta. ]
         --thread      thread num.
                       [ optional, default 8 threads. ]
@@ -42,7 +42,7 @@ Examples :
 
     ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --offspring son.fastq --format fastq --auto_bounds
 
-    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --offspring son.L01.fasta --filial son.L02.fasta --auto_bounds
+    ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq --offspring son.L01.fasta --offspring son.L02.fasta --auto_bounds
 
     ./HAST4TGS.sh --paternal father.fastq --maternal mater.fastq \
                      --offspring son.fasta --memory 20 --thread 20 \
@@ -222,7 +222,7 @@ echo "phase reads by classify ..."
 date
 $STEP1 --paternal_mer paternal.unique.filter.mer \
        --maternal_mer maternal.unique.filter.mer \
-       --offspring       $FILIAL \
+       --offspring    $FILIAL \
        --format       $FORMAT \
        --thread       $CPU  >step1.log 2>step1.err
 echo "phase reads done"
