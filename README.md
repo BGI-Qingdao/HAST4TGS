@@ -25,7 +25,7 @@ Trio phase TGS reads use exist kmer datasets.
 Options  :
         --paternal_mer paternal unique kmers
         --maternal_mer maternal unique kmers
-        --filial       filial TGS reads file in FASTA format.
+        --offspring    offspring TGS reads file in FASTA format.
                        file in gzip format can be accepted, but filename must end by .gz.
         --format       fasta/fastq . set the format of --filial.
                        [ optional, default fasta. ]
@@ -34,12 +34,12 @@ Options  :
         --help         print this usage message.
 
 Examples :
-    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fasta
+    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --offspring son.fasta
 
-    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fastq --format fastq
-    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fasta --filial son2.fasta
+    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --offspring son.fastq --format fastq
+    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --offspring son.fasta --offspring son2.fasta
 
-    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --filial son.fasta --thread 20
+    ./CLASSIFY_ONLY.sh --paternal_mer father.mers --maternal_mer mater.mers --offspring son.fasta --thread 20
 ```
 
 ### Full pipeline
@@ -55,9 +55,9 @@ Options  :
                       ( note : gzip format is NOT supported. )
         --maternal    maternal NGS reads file in FASTQ format.
                       ( note : gzip format is NOT supported. )
-        --filial      filial TGS reads file in FASTA format.
+        --offspring   offspring TGS reads file in FASTA format.
                       file in gzip format can be accepted, but filename must end by ".gz".
-        --format      fasta/fastq . set the format of --filial.
+        --format      fasta/fastq . set the format of --offspring.
                       [ optional, default fasta. ]
         --thread      thread num.
                       [ optional, default 8 threads. ]
@@ -82,12 +82,12 @@ Options  :
         --help        print this usage message.
 
 Examples :
-    ./HAST4TGS.sh --paternal father.fastq --maternal mother.fastq --filial son.fasta
+    ./HAST4TGS.sh --paternal father.fastq --maternal mother.fastq --offspring son.fasta
 
-    ./HAST4TGS.sh --paternal father.fastq --maternal mother.fastq --filial son.L01.fasta --filial son.L02.fasta
+    ./HAST4TGS.sh --paternal father.fastq --maternal mother.fastq --offspring son.L01.fasta --offspring son.L02.fasta
 
     ./HAST4TGS.sh --paternal father.fastq --maternal mother.fastq \
-                     --filial son.fasta --memory 50 --thread 20 \
+                     --offspring son.fasta --memory 50 --thread 20 \
                      --mer 21 --p-lower=9 --p-upper=32 --m-lower=8 --p-upper=33 \
                      --jellyfish /home/software/jellyfish/jellyfish-linux
 
