@@ -92,5 +92,36 @@ Examples :
                      --jellyfish /home/software/jellyfish/jellyfish-linux
 
 ```
+### format of phased.out 
+
+Below is the detail format of phased.out:
+```
+Read    read_full_name  classify_result read_length kmer_probaility_1   kmer_probaility_2  kmer_density_1  kmer_density_2  kmer_count_1 kmer_count_1
+```
+
+**If you want to parse this file by yourself, please double check whether your read_full_name contains multi-columns or not.**
+
+
+```
+# in HAST4TGS , I use paternal-specific kmer-lirary as lib1
+kmer_probaility_1 = kmer_count_1 / kmer-number-in-lib1 
+# in HAST4TGS , I use maternal-specific kmer-lirary as lib1
+kmer_probaility_2 = kmer_count_2 / kmer-number-in-lib2 
+
+kmer_density_1    = kmer_count_1 / read_length
+kmer_density_2    = kmer_count_2 / read_length
+```
+
+
+Here is an example:
+```
+Read    m64064_201214_094226/9/ccs      ambiguous       15723   0       0       0       0       0       0
+Read    m64064_201214_094226/10/ccs     haplotype1      14475   2.01279e-07     2.4242e-05      0.00332065      0.233829        483380
+Read    m64064_201214_094226/14/ccs     haplotype0      13666   2.60321e-05     0       0.454932        0       6208    0
+Read    m64064_201214_094226/15/ccs     haplotype1      13572   0       3.22749e-07     0       0.00332054      0       45
+Read    m64064_201214_094226/24/ccs     haplotype1      14796   0       1.17624e-06     0       0.0110991       0       164
+Read    m64064_201214_094226/25/ccs     haplotype0      13647   2.51599e-08     7.17219e-09     0.000440302     7.33837e-05     6 1
+Read    m64064_201214_094226/30/ccs     haplotype0      15676   2.9261e-05      0       0.445708        0       6978    0
+```
 
 Enjoy !
