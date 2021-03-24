@@ -101,7 +101,6 @@ Read    read_full_name  classify_result read_length kmer_probaility_1   kmer_pro
 
 **If you want to parse this file by yourself, please double check whether your read_full_name contains multi-columns or not.**
 
-
 ```
 # in HAST4TGS , I use paternal-specific kmer-lirary as lib1
 kmer_probaility_1 = kmer_count_1 / kmer-number-in-lib1 
@@ -112,8 +111,18 @@ kmer_density_1    = kmer_count_1 / read_length
 kmer_density_2    = kmer_count_2 / read_length
 ```
 
+The Pseudo code of detecting classify_result
+```
+if kmer_probaility_1 > kmer_probaility_2 
+    classify_result = haplotype0
+elseif kmer_probaility_1 < kmer_probaility_2
+    classify_result = haplotype1
+else
+    classify_result = ambiguous
+endif
+```
 
-Here is an example:
+Here is an example of phased.out:
 ```
 Read    m64064_201214_094226/9/ccs      ambiguous       15723   0       0       0       0       0       0
 Read    m64064_201214_094226/10/ccs     haplotype1      14475   2.01279e-07     2.4242e-05      0.00332065      0.233829        483380
