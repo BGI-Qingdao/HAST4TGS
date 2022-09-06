@@ -9,7 +9,7 @@ A version of HAST for TGS long reads, fast and memory-effiective trio-binning.
 
 ```
 git clone https://github.com/BGI-Qingdao/HAST4TGS.git
-cd HAST4TGS
+cd HAST4TGS/01.classify_reads/
 make
 ```
 
